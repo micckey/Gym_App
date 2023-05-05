@@ -1,0 +1,60 @@
+from io import BytesIO
+    from tkinter import *
+    import tkinter
+    import urllib.request
+    from PIL import Image, ImageTk
+    root=tkinter.Tk()
+    
+    ar=0
+    import tkinter as tk
+    from PIL import Image, ImageTk
+    
+    
+    
+    u = urllib.request.urlopen(url)
+    raw_data = u.read()
+    u.close()
+    
+    im = Image.open(BytesIO(raw_data))
+    
+    from itertools import count
+    
+    class ImageLabel(tk.Label):
+        """a label that displays images, and plays them if they are gifs"""
+        def load(self, im):
+            if isinstance(im, str):
+                im = im
+            self.loc = 0
+            self.frames = []
+    
+            try:
+                for i in count(1):
+                    self.frames.append(ImageTk.PhotoImage(im.copy().resize((470,210))))
+                    im.seek(i)
+            except EOFError:
+                pass
+    
+            try:
+                self.delay = im.info['duration']
+            except:
+                self.delay = 100
+    
+            if len(self.frames) == 1:
+                self.config(image=self.frames[0])
+            else:
+                self.next_frame()
+    
+        def unload(self):
+            self.config(image="")
+            self.frames = None
+    
+        def next_frame(self):
+            if self.frames:
+                self.loc += 1
+                self.loc %= len(self.frames)
+                self.config(image=self.frames[self.loc])
+                self.after(self.delay, self.next_frame)
+    lbl = ImageLabel(root)
+    lbl.pack()
+    lbl.load(im)
+    root.mainloop()
